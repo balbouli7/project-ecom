@@ -2,7 +2,12 @@ const User = require("../models/user")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const nodemailer = require('nodemailer')
-
+const twilio=require('twilio')
+const otpGenerator = require('otp-generator')
+const accountSid="AC1e349bd99b92e848dc7fdc20da6bf70b"
+const authToken="dc46cd2083b61137cbc8ec49f261abbb"
+const client = twilio(accountSid, authToken)
+const OTPModel = require('../models/OTPModel')
 
 //forget password
 
@@ -36,6 +41,7 @@ exports.forgetPassword=async(req,res)=>{
             res.status(500).json({ message: err.message })
           }
         }
+
 //reset password
 exports.resetPassword=async(req,res)=>{
   try {
@@ -58,5 +64,61 @@ exports.resetPassword=async(req,res)=>{
     res.status(200).send({ message: "Password updated" })
   } catch (err) {
     res.status(500).json({ message: err.message })
+  }
+}
+
+// account recovery otp sms
+
+exports.genOTP = async (req, res) => {
+  try {
+    const { mobile } = req.body
+        if (!mobile) {
+      return res.status(400).json({ error: "Mobile Number is required" })
+    }
+    const checkMobile = await User.findOne({ mobile })
+    if (!checkMobile) {
+      return res.status(404).json({ error: "Mobile number not found" })
+    }
+    const generatedOTP = otpGenerator.generate(6, { 
+      lowerCaseAlphabets: false, 
+      upperCaseAlphabets: false, 
+      specialChars: false 
+    })
+    await OTPModel.create({
+      mobile,
+      otp: generatedOTP,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000) 
+    })
+    await client.messages.create({
+      body: `Your OTP is: ${generatedOTP}`,
+      from: '+44 7575 172583',  
+      to: mobile
+    })
+    res.status(200).json({ message: 'OTP sent successfully' })
+
+  } catch (err) {
+    res.status(500).json({ message: err.stack })
+  }
+}
+
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { mobile, otp } = req.body
+
+    if (!mobile || !otp) {
+      return res.status(400).json({ error: "Mobile number and OTP are required" })
+    }
+    const storedOTP = await OTPModel.findOne({ mobile, otp })
+    if (!storedOTP) {
+      return res.status(400).json({ error: "Invalid OTP" })
+    }
+    if (storedOTP.expiresAt < new Date()) {
+      await OTPModel.deleteOne({ mobile, otp })
+      return res.status(400).json({ error: "OTP has expired" })
+    }
+    await OTPModel.deleteOne({ mobile, otp })
+    res.status(200).json({ message: "OTP verified successfully" })
+  } catch (err) {
+    res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 }

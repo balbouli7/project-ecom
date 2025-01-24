@@ -1,6 +1,8 @@
 const User = require("../models/user")
 const bcrypt=require('bcrypt')
 const validator=require('validator')
+const multer=require('multer')
+const path=require('path')
 
 //get all users 
 exports.getAllUsers=async(req,res)=>{
@@ -15,10 +17,10 @@ exports.getAllUsers=async(req,res)=>{
 //update user for users
 exports.updateUser = async (req, res) => {
   try {
-      const { role,password,confirmPassword, ...updateFields } = req.body
+      const { role,password,confirmPassword,isVerified, ...updateFields } = req.body
       const identifier = req.params.identifier
       if (role || password || confirmPassword) {
-        return res.status(400).json({ error: 'Role, password, and confirmPassword cannot be updated here.' })
+        return res.status(400).json({ error: 'Role, isVerified , password, and confirmPassword cannot be updated here.' })
     }
       const isEmail = validator.isEmail(identifier)
       let query;
@@ -150,9 +152,45 @@ exports.updateRole=async(req,res)=>{
     }
     user.role=role
     await user.save()
-    res.status(200).json({ message: "Role updated successfully" , role: user.role })
+    return res.status(200).json({ message: "Role updated successfully" , role: user.role })
   } catch (err) {
-      res.status(400).json({error:err.message})
+      return res.status(400).json({error:err.message})
   }
 }
 
+
+// profile image
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  },
+})
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+      cb(null, true)
+  } else {
+      cb(new Error('Only image files are allowed'), false)
+  }
+}
+const upload = multer({ storage: storage ,fileFilter: fileFilter })
+exports.imageUpload=async(req,res)=>{
+  try {
+    const user=await User.findById(req.params.id)
+    if(!user){
+      return res.status(404).json({ message: "User not found" })
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" })
+    }
+    user.profileImage = req.file.path;
+    await user.save()
+    return res.status(200).json({message:`${req.file.originalname} uploaded!`})
+  } catch (err) {
+    return res.status(400).json({error:err.message})
+  }
+}
+exports.uploadMiddleware=upload.single("profileImage")

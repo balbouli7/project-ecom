@@ -10,12 +10,15 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:[true,'email is required'],
         unique:true,
-        validate:[validator.isEmail,"Invalid Email"]
+        validate:[validator.isEmail,"Invalid Email"],
+        trim:true
     },
     mobile:{
-        type:Number,
+        type:String,
         required:true,
         unique:true,
+        trim:true
+
     },
     password:{
         type:String,
@@ -31,9 +34,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: 'user',
     },
+    profileImage:{
+        type:String,
+        default:'/uploads/default-profile.png'
+    },
+    isVerified: { type: String ,
+        enum:['verified','not verified'],
+         default: 'not verified' }
 
 },{timestamps:true})
-
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next()
     const salt = await bcrypt.genSalt(10)
@@ -45,6 +54,9 @@ userSchema.pre("save", async function (next) {
 userSchema.pre('save', function (next) {
     if (this.isNew) { 
         this.role = 'user'
+    }
+    if(this.isNew){
+        this.isVerified='not verified'
     }
     next()
 })
