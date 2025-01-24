@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken")
 const nodemailer = require('nodemailer')
 const twilio=require('twilio')
 const otpGenerator = require('otp-generator')
-const accountSid="AC1e349bd99b92e848dc7fdc20da6bf70b"
-const authToken="dc46cd2083b61137cbc8ec49f261abbb"
+const accountSid=
+const authToken=
 const client = twilio(accountSid, authToken)
 const OTPModel = require('../models/OTPModel')
 
