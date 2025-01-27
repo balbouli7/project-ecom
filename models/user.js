@@ -38,9 +38,8 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:'/uploads/default-profile.png'
     },
-    isVerified: { type: String ,
-        enum:['verified','not verified'],
-         default: 'not verified' }
+    isVerified: { type: Boolean,
+         default: false }
 
 },{timestamps:true})
 userSchema.pre("save", async function (next) {
@@ -56,7 +55,7 @@ userSchema.pre('save', function (next) {
         this.role = 'user'
     }
     if(this.isNew){
-        this.isVerified='not verified'
+        this.isVerified='false'
     }
     next()
 })

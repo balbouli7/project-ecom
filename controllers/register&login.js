@@ -93,7 +93,7 @@ exports.userLogin = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "User not found" })
     }
-    if (!user.isVerified) {
+    if (user.isVerified!==true) {
       return res.status(400).json({ error: "Please verify your account before logging in." })
   }
     const isPasswordValid = await bcrypt.compare(password, user.password)
@@ -127,7 +127,7 @@ exports.verifyUser=async(req,res)=>{
     if (!otpStorage[email] || otpStorage[email] !== verifyCode) {
       return res.status(400).json({ message: "Wrong verification code." })
   }
-  await User.findOneAndUpdate({ email }, { isVerified: "verified" })
+  await User.findOneAndUpdate({ email }, { isVerified: true })
   delete otpStorage[email]
     return res.status(200).json({message:"account verified"})
   } catch (err) {
