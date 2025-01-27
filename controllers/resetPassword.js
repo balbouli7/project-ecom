@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken")
 const nodemailer = require('nodemailer')
 const twilio=require('twilio')
 const otpGenerator = require('otp-generator')
-const accountSid="AC1e349bd99b92e848dc7fdc20da6bf70b"
-const authToken="dc46cd2083b61137cbc8ec49f261abbb"
+const accountSid="*******"
+const authToken="********"
 const client = twilio(accountSid, authToken)
 const OTPModel = require('../models/OTPModel')
 
@@ -91,7 +91,7 @@ exports.genOTP = async (req, res) => {
     })
     await client.messages.create({
       body: `Your OTP is: ${generatedOTP}`,
-      from: '+44 7575 172583',  
+      from: '*******',  
       to: mobile
     })
     res.status(200).json({ message: 'OTP sent successfully' })
@@ -119,6 +119,6 @@ exports.verifyOTP = async (req, res) => {
     await OTPModel.deleteOne({ mobile, otp })
     res.status(200).json({ message: "OTP verified successfully" })
   } catch (err) {
-    res.status(500).json({ message: 'Something went wrong. Please try again.' })
+    res.status(500).json({ message: err.message  })
   }
 }
