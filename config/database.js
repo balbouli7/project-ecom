@@ -1,16 +1,22 @@
-const { default: mongoose } = require('mongoose')
-const moongose=require('mongoose')
-const connectDB=async()=>{
-try {
-    await mongoose.connect(process.env.MONGO_URI,{
-        useUnifiedTopology: true,
-        useNewUrlParser:true
-    })
-    console.log('Connected to myDB')
-}
-catch (err) {
-    console.error('Connection to myDB failed', err.stack)
-    process.exit(1)
-} }
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config(); // Charger les variables d'environnement
 
-module.exports=connectDB
+const connectDB = async () => {
+  try {
+    const uri = process.env.MONGO_URI;
+    if (!uri) {
+      throw new Error("Mongo URI is not defined.");
+    }
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB connected');
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1); // Arrêter le processus si la connexion échoue
+  }
+};
+
+module.exports = connectDB;

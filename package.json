@@ -1,5 +1,5 @@
 {
-  "name": "project-e-commerce",
+  "name": "e-com1",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
@@ -11,12 +11,24 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "nodemailer": "^6.9.16",
-    "validator": "^13.12.0"
+    "pdfkit": "^0.16.0",
+    "validation": "^0.0.1",
+    "validator": "^13.12.0",
+    "xlsx": "^0.18.5",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }
