@@ -34,7 +34,6 @@ exports.userRegister = async (req, res) => {
         const newUser = new User({
             email,
             password, 
-            confirmPassword,
             fullName,
             mobile,
             role,
