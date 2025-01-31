@@ -76,62 +76,63 @@ exports.updatePassword=async(req,res)=>{
 let otpStorage = {}
 exports.addUser= async(req,res)=>{
   try {
+      
+    const { email, password, fullName, mobile, role ,confirmPassword ,address} = req.body;
+    if (!email || !password || !confirmPassword || !fullName || !mobile || !role || !address) {
+      return res.status(400).json({ error: "All fields are required." })
+  }
+  if(password!==confirmPassword){
+    return res.status(400).json("verify the confirmPassword")
+  }
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/
+  if (!passwordPattern.test(password)) {
+    return res.status(400).json("Password must contain at least one uppercase letter , one lowercase letter and 8 characters.")
+}
+const emailExists = await User.findOne({ email })
+if (emailExists){
+  return res.status(400).json("Email already exists")
+}
+const mobileExists = await User.findOne({ mobile })
+if (mobileExists){
+  return res.status(400).json("Mobile number already exists")
+}
+    const newUser = new User({
+        email,
+        password, 
+        fullName,
+        mobile,
+        role,
+        address
+    })
+
+    const savedUser = await newUser.save()
+
+        const generatedOTP = otpGenerator.generate(6, { 
+  lowerCaseAlphabets: false, 
+  upperCaseAlphabets: false, 
+  specialChars: false 
+})
+
+otpStorage[email] = generatedOTP
+    const transporter=nodemailer.createTransport({
+              service:"gmail",
+              auth:{
+                   user: process.env.EMAIL,
+              pass: process.env.passwordEmail}
+          })
+          const mailOptions={
+              from:process.env.EMAIL,
+              to:email,
+              subject:"Account verification",
+              text:`Your verification code is : ${generatedOTP}`
+              }
+              transporter.sendMail(mailOptions)
     
-      const { email, password, fullName, mobile, role ,confirmPassword} = req.body;
-      if (!email || !password || !confirmPassword || !fullName || !mobile || !role) {
-        return res.status(400).json({ error: "All fields are required." })
-    }
-    if(password!==confirmPassword){
-      return res.status(400).json("verify the confirmPassword")
-    }
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/
-    if (!passwordPattern.test(password)) {
-      return res.status(400).json("Password must contain at least one uppercase letter , one lowercase letter and 8 characters.")
-  }
-  const emailExists = await User.findOne({ email })
-  if (emailExists){
-    return res.status(400).json("Email already exists")
-  }
-  const mobileExists = await User.findOne({ mobile })
-  if (mobileExists){
-    return res.status(400).json("Mobile number already exists")
-  }
-      const newUser = new User({
-          email,
-          password, 
-          fullName,
-          mobile,
-          role,
-      })
-
-      const savedUser = await newUser.save()
-
-          const generatedOTP = otpGenerator.generate(6, { 
-    lowerCaseAlphabets: false, 
-    upperCaseAlphabets: false, 
-    specialChars: false 
-  })
-
-  otpStorage[email] = generatedOTP
-      const transporter=nodemailer.createTransport({
-                service:"gmail",
-                auth:{
-                     user: process.env.EMAIL,
-                pass: process.env.passwordEmail}
-            })
-            const mailOptions={
-                from:process.env.EMAIL,
-                to:email,
-                subject:"Account verification",
-                text:`Your verification code is : ${generatedOTP}`
-                }
-                transporter.sendMail(mailOptions)
-      
-      res.status(201).json({ message: "Eamil with verification code sent", user: savedUser })
-      
-  } catch (err) {
-      res.status(500).json({ error: err.message })
-  }
+    res.status(201).json({ message: "Eamil with verification code sent", user: savedUser })
+    
+} catch (err) {
+    res.status(500).json({ error: err.message })
+}
 }
 
 //search user by anything
