@@ -5,15 +5,15 @@ const multer=require('multer')
 const path=require('path')
 const otpGenerator = require('otp-generator')
 const nodemailer = require('nodemailer')
-
+const QRCode = require('qrcode')
 
 let otpStorage = {}
 //user register
 exports.userRegister = async (req, res) => {
     try {
       
-        const { email, password, fullName, mobile, role ,confirmPassword} = req.body;
-        if (!email || !password || !confirmPassword || !fullName || !mobile || !role) {
+        const { email, password, fullName, mobile, role ,confirmPassword ,address} = req.body;
+        if (!email || !password || !confirmPassword || !fullName || !mobile || !role || !address) {
           return res.status(400).json({ error: "All fields are required." })
       }
       if(password!==confirmPassword){
@@ -37,6 +37,7 @@ exports.userRegister = async (req, res) => {
             fullName,
             mobile,
             role,
+            address
         })
 
         const savedUser = await newUser.save()
@@ -129,6 +130,28 @@ exports.verifyUser=async(req,res)=>{
   await User.findOneAndUpdate({ email }, { isVerified: true })
   delete otpStorage[email]
     return res.status(200).json({message:"account verified"})
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+}
+//QR code with user info
+
+exports.userQRCode=async(req,res)=>{
+  try {
+    const ID=req.params.id
+    const user=await User.findById(ID)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+  }
+  const userInfo = {
+    id:user._id,
+    name:user.fullName,
+    email:user.email,
+    mobile:user.mobile,
+    address:user.address
+  }
+  res.setHeader('Content-Type', 'image/png')
+  QRCode.toFileStream(res, JSON.stringify(userInfo))
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }

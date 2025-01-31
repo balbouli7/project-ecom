@@ -24,7 +24,12 @@
     "nodemon": "^3.1.9",
     "otp-generator": "^4.0.1",
     "path": "^0.12.7",
+<<<<<<< HEAD
     "twilio": "^5.4.3",
+=======
+    "qrcode": "^1.5.4",
+    "twilio": "^5.4.2",
+>>>>>>> f2dacd4c67dbe4bcba92cf1673ff870c77971612
     "validator": "^13.12.0"
   }
 }
