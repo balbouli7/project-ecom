@@ -1,6 +1,6 @@
 const express =require("express")
 
-const{userRegister, userLogin, verifyUser}=require('../controllers/register&login')
+const{userRegister, userLogin, verifyUser, userQRCode}=require('../controllers/register&login')
 const { getAllUsers, updateUser, addUser, searchUser, deleteUser, updatePassword, updateRole, uploadMiddleware, imageUpload,  } = require("../controllers/user&admin")
 const { forgetPassword, resetPassword, genOTP, verifyOTP } = require("../controllers/resetPassword")
 
@@ -21,4 +21,5 @@ router.post('/resetpassword/:token',resetPassword)
 router.post('/OTP',genOTP)
 router.post('/verify_otp',verifyOTP)
 router.post('/uploadImage/:id',uploadMiddleware,imageUpload)
+router.post('/QRCode/:id',userQRCode)
 module.exports=router

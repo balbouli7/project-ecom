@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: 'user',
     },
+    address:{
+        type: String,
+        required:true
+    },
     profileImage:{
         type:String,
         default:'/uploads/default-profile.png'

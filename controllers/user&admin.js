@@ -3,6 +3,8 @@ const bcrypt=require('bcrypt')
 const validator=require('validator')
 const multer=require('multer')
 const path=require('path')
+const otpGenerator = require('otp-generator')
+const nodemailer = require('nodemailer')
 
 //get all users 
 exports.getAllUsers=async(req,res)=>{
@@ -68,47 +70,69 @@ exports.updatePassword=async(req,res)=>{
       res.status(400).json({error:err.message})
   }
 }
+
 // add user (only admin)
-exports.addUser= async(req,res)=>{try {
+
+let otpStorage = {}
+exports.addUser= async(req,res)=>{
+  try {
+    
+      const { email, password, fullName, mobile, role ,confirmPassword} = req.body;
+      if (!email || !password || !confirmPassword || !fullName || !mobile || !role) {
+        return res.status(400).json({ error: "All fields are required." })
+    }
+    if(password!==confirmPassword){
+      return res.status(400).json("verify the confirmPassword")
+    }
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/
+    if (!passwordPattern.test(password)) {
+      return res.status(400).json("Password must contain at least one uppercase letter , one lowercase letter and 8 characters.")
+  }
+  const emailExists = await User.findOne({ email })
+  if (emailExists){
+    return res.status(400).json("Email already exists")
+  }
+  const mobileExists = await User.findOne({ mobile })
+  if (mobileExists){
+    return res.status(400).json("Mobile number already exists")
+  }
+      const newUser = new User({
+          email,
+          password, 
+          fullName,
+          mobile,
+          role,
+      })
+
+      const savedUser = await newUser.save()
+
+          const generatedOTP = otpGenerator.generate(6, { 
+    lowerCaseAlphabets: false, 
+    upperCaseAlphabets: false, 
+    specialChars: false 
+  })
+
+  otpStorage[email] = generatedOTP
+      const transporter=nodemailer.createTransport({
+                service:"gmail",
+                auth:{
+                     user: process.env.EMAIL,
+                pass: process.env.passwordEmail}
+            })
+            const mailOptions={
+                from:process.env.EMAIL,
+                to:email,
+                subject:"Account verification",
+                text:`Your verification code is : ${generatedOTP}`
+                }
+                transporter.sendMail(mailOptions)
       
-        const { email, password, fullName, mobile, role ,confirmPassword} = req.body;
-        // const hashedPassword = await bcrypt.hash(password, saltRounds)
-        if (!email || !password || !confirmPassword || !fullName || !mobile || !role) {
-          return res.status(400).json({ error: "All fields are required." })
-      }
-      if(password!==confirmPassword){
-        return res.status(400).json("verify the confirmPassword")
-      }
-        const newUser = new User({
-            email,
-            password, 
-            confirmPassword,
-            fullName,
-            mobile,
-            role
-        })
-        const emailExists = await User.findOne({ email })
-        if (emailExists){
-          return res.status(400).json("Email already exists")
-        }
-        const mobileExists = await User.findOne({ mobile })
-        if (mobileExists){
-          return res.status(400).json("Mobile number already exists")
-        }
-        if(!password===confirmPassword){
-          return res.status(400).json("verify the confirmPassword")
-        }
-        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/
-        if (!passwordPattern.test(password)) {
-          return res.status(400).json("Password must contain at least one uppercase letter , one lowercase letter and 8 characters.")
-      }
-        const savedUser = await newUser.save()
-        
-        return res.status(201).json({ message: "User added successfully", user: savedUser })
-        
-    } catch (err) {
-        res.status(500).json({ error: err.message })
-    }}
+      res.status(201).json({ message: "Eamil with verification code sent", user: savedUser })
+      
+  } catch (err) {
+      res.status(500).json({ error: err.message })
+  }
+}
 
 //search user by anything
 exports.searchUser = async (req, res) => {
