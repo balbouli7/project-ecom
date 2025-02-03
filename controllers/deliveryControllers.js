@@ -1,5 +1,8 @@
+require('dotenv').config()
 const { Receive } = require('twilio/lib/twiml/FaxResponse');
 const OrderDelivery=require('../models/delivery')
+accountsid=process.env.ACCOUNT_SID
+authtoken=process.env.ACCOUNT_TOKEN
 // Add a new delivery
 exports.addDelivery = async (req, res) => {
   try {
