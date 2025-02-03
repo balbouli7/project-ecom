@@ -3,6 +3,8 @@ const { Receive } = require('twilio/lib/twiml/FaxResponse');
 const OrderDelivery=require('../models/delivery')
 accountsid=process.env.ACCOUNT_SID
 authtoken=process.env.ACCOUNT_TOKEN
+const client = new twilio(accountSid, authToken);
+const twilio = require('twilio');
 // Add a new delivery
 exports.addDelivery = async (req, res) => {
   try {
@@ -100,50 +102,11 @@ exports.getCoordinates= async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch coordinates", details: error.message });
     }
 
-};//KFBFRP3R9EWZHKDDFYNQ11MT-------------this if you forget your twilio account
-/*const twilio = require('twilio');
-const accountSid = 'ACdeaedc6487cae2c103e40fd4fc498a30';//my account sid twilio 
-const authToken = 'ffffa5cacfafe42a56c1987ec99bbb79';//my account token twilio
-const client = new twilio(accountSid, authToken);
-exports.updatedeliverymsg = async (req, res) => {
-    try {
-        const { deliveryId } = req.params;
-        const { deliveryStatus, clientPhone } = req.body;
-
-        if (deliveryStatus === 'shipped') {
-            // Update the delivery order status in the database
-            const order = await OrderDelivery.findByIdAndUpdate(deliveryId, { deliveryStatus: 'shipped' }, { new: true });
-
-            if (!order) {
-                return res.status(404).json({ error: 'Delivery order not found' });
-            }
-
-            // Send SMS notification
-            const message = `Your delivery order #${OrderDelivery} has been shipped!`;
-            await client.messages.create({
-                body: message,
-                from: 'your_twilio_phone_number', // Your Twilio phone number
-                to: clientPhone, // Customer's phone number
-            });
-
-            return res.status(200).json({ message: 'Delivery status updated and SMS sent', order });
-        } else {
-            return res.status(400).json({ error: 'Invalid status' });
-        }
-
-    } catch (error) {
-        console.error('Error updating delivery order:', error);
-        return res.status(500).json({ error: 'Failed to update delivery order', details: error.message });
-    }
-};*/
-const twilio = require('twilio');
-
-
+};
 // async func to send msg
 exports.updatedeliverymsg = async (req, res) => {
   // account sid and auth token
-const accountSid = 'ACdeaedc6487cae2c103e40fd4fc498a30';  // Your Twilio Account SID
-const authToken = 'ffffa5cacfafe42a56c1987ec99bbb79';  // Your Twilio Auth Token
+
 const client = new twilio(accountSid, authToken);
 
 // my number 
