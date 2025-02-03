@@ -1,10 +1,5 @@
-require('dotenv').config()
 const { Receive } = require('twilio/lib/twiml/FaxResponse');
 const OrderDelivery=require('../models/delivery')
-accountsid=process.env.ACCOUNT_SID
-authtoken=process.env.ACCOUNT_TOKEN
-const client = new twilio(accountSid, authToken);
-const twilio = require('twilio');
 // Add a new delivery
 exports.addDelivery = async (req, res) => {
   try {
@@ -103,10 +98,14 @@ exports.getCoordinates= async (req, res) => {
     }
 
 };
+const twilio = require('twilio');
+
+
 // async func to send msg
 exports.updatedeliverymsg = async (req, res) => {
   // account sid and auth token
-
+const accountSid = 'ACdeaedc6487cae2c103e40fd4fc498a30';  // Your Twilio Account SID
+const authToken = 'ffffa5cacfafe42a56c1987ec99bbb79';  // Your Twilio Auth Token
 const client = new twilio(accountSid, authToken);
 
 // my number 
