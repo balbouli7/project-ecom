@@ -9,15 +9,20 @@ const router=express.Router()
 router.post('/register',userRegister,uploadMiddleware,imageUpload)
 router.post('/login',userLogin)
 router.post('/verify',verifyUser)
+
 router.get('/users',getAllUsers)
 router.put('/update_user/:identifier', updateUser)
 router.put('/update_password',updatePassword)
+
 router.put('/update_role',updateRole)
 router.post('/add_user',addUser)
 router.get('/search', searchUser)
+
 router.delete('/delete/:id',deleteUser)
 router.post('/forgetPassword',forgetPassword)
 router.post('/resetpassword/:token',resetPassword)
+
+
 router.post('/OTP',genOTP)
 router.post('/verify_otp',verifyOTP)
 router.post('/uploadImage/:id',uploadMiddleware,imageUpload)

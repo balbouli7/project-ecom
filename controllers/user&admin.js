@@ -177,6 +177,8 @@ const fileFilter = (req, file, cb) => {
   }
 }
 const upload = multer({ storage: storage ,fileFilter: fileFilter })
+
+
 exports.imageUpload=async(req,res)=>{
   try {
     const user=await User.findById(req.params.id)

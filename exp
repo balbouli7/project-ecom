@@ -1,0 +1,50 @@
+  {
+    "products": [
+      {
+        "productId": "679004fe7cefbda714182798",
+        "name": "Produit A",
+        "description": "Produit description",
+        "quantite": 5,
+        "prix_unitaire_ht": 100,
+        "image": "http://example.com/product-image.jpg",
+        "category": "Électronique"
+      },
+      {
+        "productId": "678ff32e3803e4d4b785cc3a",
+        "name": "ProduiB",
+        "description": "Ceci est un produi.",
+        "quantite": 3,
+        "prix_unitaire_ht": 150,
+        "image": "http://example.com/product-image.jpg",
+        "category": "Électronique"
+      },
+      {
+        "productId": "67910416f64ed60175c823f1",
+        "name": "Product C",
+        "description": "This is a test product. ",
+        "quantite": 2,
+        "prix_unitaire_ht": 100,
+        "category": "Home Appliances",
+        "_id": "67913e007d280923dc17008d"
+    },
+    {
+      "productId": "6791712e0a585d29849598be",
+      "name": "Product RI",
+      "description": "This is a test product.",
+      "quantite": 5,
+      "prix_unitaire_ht": 100,
+      "image": "http://example.com/image.jpg",
+      "category": "Electronics"
+    }
+      
+    ],
+    "userId": "678fc27bfafda170c1e9275a"
+     }
+  
+
+
+
+     ----------------------------------------------
+     {
+      "email" : "rimarzouga21@gmail.com"
+    }

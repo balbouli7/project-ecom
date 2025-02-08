@@ -1,11 +1,12 @@
+require('dotenv').config()
 const User = require("../models/user")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const nodemailer = require('nodemailer')
 const twilio=require('twilio')
 const otpGenerator = require('otp-generator')
-const accountSid="*****"
-const authToken="****"
+const accountSid= process.env.accountSid
+const authToken= process.env.authToken
 const client = twilio(accountSid, authToken)
 const OTPModel = require('../models/OTPModel')
 
@@ -91,7 +92,7 @@ exports.genOTP = async (req, res) => {
     })
     await client.messages.create({
       body: `Your OTP is: ${generatedOTP}`,
-      from: '*****',  
+      from: process.env.from,
       to: mobile
     })
     res.status(200).json({ message: 'OTP sent successfully' })
