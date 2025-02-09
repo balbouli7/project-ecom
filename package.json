@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,25 +10,18 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
-    "nodemon": "^3.1.9",
     "otp-generator": "^4.0.1",
     "path": "^0.12.7",
-<<<<<<< HEAD
-    "twilio": "^5.4.3",
-=======
     "qrcode": "^1.5.4",
     "twilio": "^5.4.2",
->>>>>>> f2dacd4c67dbe4bcba92cf1673ff870c77971612
     "validator": "^13.12.0"
   }
 }
