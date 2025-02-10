@@ -105,11 +105,19 @@ const twilio = require('twilio');
 exports.updatedeliverymsg = async (req, res) => {
   // account sid and auth token
 const accountSid = 'ACdeaedc6487cae2c103e40fd4fc498a30';  // Your Twilio Account SID
+<<<<<<< HEAD
 const authToken = '342e9c7c36659e1386cdc4b02cc07012';  // Your Twilio Auth Token
 const client = new twilio(accountSid, authToken);
 
 // my number 
 const fromPhoneNumber = '+15074458846';  //Twilio number
+=======
+const authToken = 'ffffa5cacfafe42a56c1987ec99bbb79';  // Your Twilio Auth Token
+const client = new twilio(accountSid, authToken);
+
+// my number 
+const fromPhoneNumber = '+15074458846';  // Replace with your Twilio number
+>>>>>>> c28493f334ae803ff2137027c0edac6ac1175870
     try {
 
 
