@@ -5,12 +5,14 @@ const userRoutes=require('./routes/userRoutes')
 const productRoutes = require('./routes/productRoutes'); // Importez les routes produits
 const commandRoutes = require('./routes/commandRoutes');
 const deliveryRoutes=require('./routes/deliveryRoutes')
+const cors=require('cors')
 dotenv.config()
 const app= express()
 const bodyParser=require("body-parser")
 const PORT=process.env.PORT||3000
 
 connectDB()
+app.use(cors())
 app.use(bodyParser.json())
 app.use(express.json())
 app.use('/api',userRoutes)

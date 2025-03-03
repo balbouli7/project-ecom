@@ -10,65 +10,72 @@ const QRCode = require('qrcode')
 let otpStorage = {}
 //user register
 exports.userRegister = async (req, res) => {
-    try {
-      
-        const { email, password, fullName, mobile, role ,confirmPassword ,address} = req.body;
-        if (!email || !password || !confirmPassword || !fullName || !mobile || !role || !address) {
-          return res.status(400).json({ error: "All fields are required." })
+  try {
+      const { email, password, fullName, mobile, confirmPassword, address } = req.body;
+
+      if (!email || !password || !confirmPassword || !fullName || !mobile || !address) {
+          return res.status(400).json({ error: "All fields are required." });
       }
-      if(password!==confirmPassword){
-        return res.status(400).json("verify the confirmPassword")
+
+      if (password !== confirmPassword) {
+          return res.status(400).json({ error: "Passwords do not match." });
       }
-      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/
+
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
       if (!passwordPattern.test(password)) {
-        return res.status(400).json("Password must contain at least one uppercase letter , one lowercase letter and 8 characters.")
-    }
-    const emailExists = await User.findOne({ email })
-    if (emailExists){
-      return res.status(400).json("Email already exists")
-    }
-    const mobileExists = await User.findOne({ mobile })
-    if (mobileExists){
-      return res.status(400).json("Mobile number already exists")
-    }
-        const newUser = new User({
-            email,
-            password, 
-            fullName,
-            mobile,
-            role,
-            address
-        })
+          return res.status(400).json({ error: "Password must contain at least one uppercase letter, one lowercase letter, and be at least 8 characters long." });
+      }
 
-        const savedUser = await newUser.save()
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+          return res.status(400).json({ error: "Email already exists." });
+      }
 
-            const generatedOTP = otpGenerator.generate(6, { 
-      lowerCaseAlphabets: false, 
-      upperCaseAlphabets: false, 
-      specialChars: false 
-    })
+      const mobileExists = await User.findOne({ mobile });
+      if (mobileExists) {
+          return res.status(400).json({ error: "Mobile number already exists." });
+      }
 
-    otpStorage[email] = generatedOTP
-        const transporter=nodemailer.createTransport({
-                  service:"gmail",
-                  auth:{
-                       user: process.env.EMAIL,
-                  pass: process.env.passwordEmail}
-              })
-              const mailOptions={
-                  from:process.env.EMAIL,
-                  to:email,
-                  subject:"Account verification",
-                  text:`Your verification code is : ${generatedOTP}`
-                  }
-                  transporter.sendMail(mailOptions)
-        
-        res.status(201).json({ message: "Eamil with verification code sent", user: savedUser })
-        
-    } catch (err) {
-        res.status(500).json({ error: err.message })
-    }
-}
+      const newUser = new User({
+          email,
+          password,
+          fullName,
+          mobile,
+          address
+      });
+
+      const savedUser = await newUser.save();
+      const normalizedEmail = email.toLowerCase();
+      const generatedOTP = otpGenerator.generate(6, { 
+          lowerCaseAlphabets: false, 
+          upperCaseAlphabets: false, 
+          specialChars: false 
+      });
+
+      otpStorage[normalizedEmail] = { otp: generatedOTP, timestamp: Date.now() };
+      const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+              user: process.env.EMAIL,
+              pass: process.env.passwordEmail
+          }
+      });
+
+      const mailOptions = {
+          from: process.env.EMAIL,
+          to: email,
+          subject: "Account verification",
+          text: `Your verification code is: ${generatedOTP}`
+      };
+
+      transporter.sendMail(mailOptions);
+
+      res.status(201).json({ message: "Email with verification code sent", user: savedUser });
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
 
 //user login
 exports.userLogin = async (req, res) => {
@@ -121,19 +128,24 @@ exports.userLogin = async (req, res) => {
   }
 }
 
-exports.verifyUser=async(req,res)=>{
+exports.verifyUser = async (req, res) => {
   try {
-    const{verifyCode,email}=req.body
-    if (!otpStorage[email] || otpStorage[email] !== verifyCode) {
-      return res.status(400).json({ message: "Wrong verification code." })
-  }
-  await User.findOneAndUpdate({ email }, { isVerified: true })
-  delete otpStorage[email]
-    return res.status(200).json({message:"account verified"})
+    const { verifyCode, email } = req.body;
+    const normalizedEmail = email.toLowerCase();  
+
+    const storedOTPData = otpStorage[normalizedEmail];
+    if (!storedOTPData || storedOTPData.otp !== verifyCode) {
+
+      return res.status(400).json({ message: "Wrong verification code." });
+    }
+
+    await User.findOneAndUpdate({ email: normalizedEmail }, { isVerified: true });
+    delete otpStorage[normalizedEmail];  
+    return res.status(200).json({ message: "Account verified" });
   } catch (err) {
-    return res.status(500).json({ error: err.message })
+    return res.status(500).json({ error: err.message });
   }
-}
+};
 //QR code with user info
 
 exports.userQRCode=async(req,res)=>{

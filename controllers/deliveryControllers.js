@@ -105,7 +105,7 @@ const twilio = require('twilio');
 exports.updatedeliverymsg = async (req, res) => {
   // account sid and auth token
 const accountSid = 'ACdeaedc6487cae2c103e40fd4fc498a30';  // Your Twilio Account SID
-const authToken = 'ffffa5cacfafe42a56c1987ec99bbb79';  // Your Twilio Auth Token
+const authToken = '342e9c7c36659e1386cdc4b02cc07012';  // Your Twilio Auth Token
 const client = new twilio(accountSid, authToken);
 
 // my number 

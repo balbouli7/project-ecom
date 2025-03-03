@@ -30,7 +30,7 @@ exports.forgetPassword=async(req,res)=>{
           from:process.env.EMAIL,
           to:email,
           subject:"reset password",
-          text:`http://localhost:5000/api/resetpassword/${token}`
+          text:`http://localhost:3000/resetpassword/${token}`
           }
           transporter.sendMail(mailOptions, (err, info) => {
               if (err) {

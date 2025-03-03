@@ -219,3 +219,30 @@ exports.imageUpload=async(req,res)=>{
   }
 }
 exports.uploadMiddleware=upload.single("profileImage")
+
+// Get current logged-in user's details
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id); 
+    console.log('Fetched User:', user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id); // Assuming you're using Mongoose
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
