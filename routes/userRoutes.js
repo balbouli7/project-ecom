@@ -3,7 +3,8 @@ const express =require("express")
 const{userRegister, userLogin, verifyUser, userQRCode}=require('../controllers/register&login')
 const { getAllUsers, updateUser, addUser, searchUser, deleteUser, updatePassword, updateRole, uploadMiddleware, imageUpload, getCurrentUser, getbyid, getUserById,  } = require("../controllers/user&admin")
 const { forgetPassword, resetPassword, genOTP, verifyOTP } = require("../controllers/resetPassword")
-const { authenticate } = require("../middleware .js/Authentication Middleware ")
+const { authenticate } = require("../middleware/AuthenticationMiddleware ")
+const { checkAdminRole } = require("../middleware/roleMiddleware.js")
 
 const router=express.Router()
 

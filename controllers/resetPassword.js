@@ -12,61 +12,91 @@ const OTPModel = require('../models/OTPModel')
 
 //forget password
 
-exports.forgetPassword=async(req,res)=>{
+exports.forgetPassword = async (req, res) => {
   try {
-    const { email } = req.body
-      const user=await User.findOne({email})
-      if(!user){
-          res.status(404).json("user not found")
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+
+    // Store email in session for further use
+    req.session.resetEmail = email; // Make sure the session middleware is initialized
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.passwordEmail,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Reset Password",
+      text: `Click here to reset your password: http://localhost:3000/resetpassword/${token}`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error("Error sending email:", err);
+        return res.status(500).json({ message: "Error sending reset email." });
       }
-      const token=jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"15m"})
-      const transporter=nodemailer.createTransport({
-          service:"gmail",
-          auth:{
-               user: process.env.EMAIL,
-          pass: process.env.passwordEmail}
-      })
-      const mailOptions={
-          from:process.env.EMAIL,
-          to:email,
-          subject:"reset password",
-          text:`http://localhost:3000/resetpassword/${token}`
-          }
-          transporter.sendMail(mailOptions, (err, info) => {
-              if (err) {
-                return res.status(500).json({ message: err.message })
-              }
-              res.status(200).json({ message: "Email sent" })
-            })
-          } catch (err) {
-            res.status(500).json({ message: err.message })
-          }
-        }
+      res.status(200).json({ message: "Password reset email sent successfully." });
+    });
+  } catch (err) {
+    console.error("Error in forgetPassword:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 
 //reset password
-exports.resetPassword=async(req,res)=>{
+
+exports.resetPassword = async (req, res) => {
   try {
-    const decodedToken=jwt.verify(req.params.token,process.env.JWT_SECRET)
-    if(!decodedToken){
-      return res.status(404).json({message:"Invalid token"})
+    const { token } = req.params;
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decodedToken) {
+      return res.status(400).json({ message: "Invalid or expired token." });
     }
-    const { email , newPassword } = req.body
-    const user=await User.findOne({email})
-    if(!user){
-      return res.status(400).json({message:"User not found"})
+
+    const { newPassword } = req.body;
+
+    // Find user by decoded userId from the token
+    const user = await User.findById(decodedToken.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/
+
+    // Validate new password with regex
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
     if (!passwordPattern.test(newPassword)) {
-      return res.status(400).json("Password must contain at least one uppercase letter , one lowercase letter and 8 characters.")
-  }
-    user.password = newPassword
-    user.confirmPassword= newPassword
-    await user.save()
-    res.status(200).send({ message: "Password updated" })
+      return res.status(400).json({
+        message:
+          "Password must contain at least one uppercase letter, one lowercase letter, and be at least 8 characters long.",
+      });
+    }
+
+    // Update the user's password
+    user.password = newPassword;
+    user.confirmPassword = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    console.error("Error in resetPassword:", err);
+    res.status(500).json({ message: err.message });
   }
-}
+};
+
+
 
 // account recovery otp sms
 

@@ -1,4 +1,5 @@
 const express = require('express')
+const session = require('express-session');
 const dotenv=require('dotenv')
 const connectDB=require('./config/database')
 const userRoutes=require('./routes/userRoutes')
@@ -15,6 +16,14 @@ connectDB()
 app.use(cors())
 app.use(bodyParser.json())
 app.use(express.json())
+app.use(
+    session({
+      secret: process.env.SESSION_SECRET || 'your-secret-key',
+      resave: false, // Do not save session if unmodified
+      saveUninitialized: false, // Do not create a session until something is stored
+      cookie: { secure: false }, // Set to true for HTTPS in production
+    })
+  );
 app.use('/api',userRoutes)
 app.use('/api',productRoutes)
 app.use('/api',commandRoutes)

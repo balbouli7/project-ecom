@@ -1,9 +1,15 @@
 const jwt = require('jsonwebtoken');
 const User = require("../models/user");
+const verifyToken = (token) => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);  // Verifies and decodes the token
+  } catch (error) {
+    throw new Error('Invalid or expired token');
+  }
+};
 
 const authenticate = async (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');  
-  console.log('Received Token:', token); 
   if (!token) {
     return res.status(401).json({ message: "Authorization token required" });
   }
@@ -23,4 +29,4 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate };
+module.exports = { authenticate,verifyToken };
